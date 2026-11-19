@@ -61,10 +61,10 @@ func (e *APIError) Error() string {
 
 func New(server, token string) (*Client, error) {
 	if server == "" {
-		return nil, fmt.Errorf("no Grist server configured: use --server, GRISTDL_SERVER, or server in the config file")
+		return nil, fmt.Errorf("no Grist server configured: use --server, GRIST_URL, or server in the config file")
 	}
 	if token == "" {
-		return nil, fmt.Errorf("no API token configured: use --token, GRISTDL_TOKEN, token in the config file, or a .env file")
+		return nil, fmt.Errorf("no API token configured: use --token, GRIST_API_KEY, token in the config file, or a .env file")
 	}
 	u, err := url.Parse(server)
 	if err != nil || u.Scheme == "" || u.Host == "" {

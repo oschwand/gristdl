@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/joho/godotenv"
+	"github.com/oschwand/gristdl/internal/grist"
 	"github.com/oschwand/gristdl/internal/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -35,21 +35,25 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is .gristdl.yaml or $HOME/.gristdl.yaml)")
 	rootCmd.PersistentFlags().StringVar(&envFile, "env-file", ".env", "dotenv file to load (set to \"\" to skip; real environment variables take precedence)")
-	rootCmd.PersistentFlags().String("server", "https://docs.getgrist.com", "Grist API server")
-	rootCmd.PersistentFlags().String("token", "", "Grist API token (or GRISTDL_TOKEN)")
+	rootCmd.PersistentFlags().String("server", "https://docs.getgrist.com", "Grist API server (or GRIST_URL)")
+	rootCmd.PersistentFlags().String("token", "", "Grist API token (or GRIST_API_KEY)")
+	rootCmd.PersistentFlags().String("doc-id", "", "default document ID (or GRIST_DOC_ID)")
+	rootCmd.PersistentFlags().String("team-id", "", "default team or org domain (or GRIST_TEAM_ID)")
 
 	_ = viper.BindPFlag("env-file", rootCmd.PersistentFlags().Lookup("env-file"))
 	_ = viper.BindPFlag("server", rootCmd.PersistentFlags().Lookup("server"))
 	_ = viper.BindPFlag("token", rootCmd.PersistentFlags().Lookup("token"))
-	_ = viper.BindEnv("server")
-	_ = viper.BindEnv("token")
+	_ = viper.BindPFlag("doc-id", rootCmd.PersistentFlags().Lookup("doc-id"))
+	_ = viper.BindPFlag("team-id", rootCmd.PersistentFlags().Lookup("team-id"))
+
+	_ = viper.BindEnv("server", "GRIST_URL")
+	_ = viper.BindEnv("token", "GRIST_API_KEY")
+	_ = viper.BindEnv("doc-id", "GRIST_DOC_ID")
+	_ = viper.BindEnv("team-id", "GRIST_TEAM_ID")
+	_ = viper.BindEnv("env-file", "GRIST_ENV_FILE")
 }
 
 func initConfig() {
-	viper.SetEnvPrefix("GRISTDL")
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
-	viper.AutomaticEnv()
-
 	loadEnvFile(viper.GetString("env-file"))
 
 	if cfgFile != "" {
@@ -76,4 +80,8 @@ func loadEnvFile(path string) {
 		}
 		fmt.Fprintf(os.Stderr, "warning: could not load env file %s: %v\n", path, err)
 	}
+}
+
+func newGristClient() (*grist.Client, error) {
+	return grist.New(viper.GetString("server"), viper.GetString("token"))
 }

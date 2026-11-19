@@ -15,21 +15,26 @@ the module version. Releases: tag `vX.Y.Z` then `goreleaser release`.
 
 ## Configuration
 
-Precedence (highest first): flags, environment variables (`GRISTDL_*`),
-`.env` file, config file, defaults.
+Precedence (highest first): flags, environment variables, `.env` file,
+config file, defaults.
 
     gristdl connect --server https://grist.example.com --token XXX
-    GRISTDL_TOKEN=xxx gristdl connect
-    # .env (default path, loaded unless variables are already set):
-    GRISTDL_SERVER=https://grist.example.com
-    GRISTDL_TOKEN=XXX
+    # environment / .env file (default path .env, loaded unless
+    # variables are already set):
+    GRIST_URL=https://grist.example.com
+    GRIST_API_KEY=XXX
+    GRIST_DOC_ID=tuSGBSshXrZgdeyxNfojAP
+    GRIST_TEAM_ID=docs
     # or .gristdl.yaml / $HOME/.gristdl.yaml:
     server: https://grist.example.com
     token: XXX
+    doc-id: tuSGBSshXrZgdeyxNfojAP
+    team-id: docs
 
-Use `--env-file PATH` (or `GRISTDL_ENV_FILE`) for a custom dotenv location,
+Use `--env-file PATH` (or `GRIST_ENV_FILE`) for a custom dotenv location,
 `--env-file ""` to disable, and `--config PATH` for a custom config file.
 
 ## Commands
 
     gristdl connect   # test auth against the server, list accessible orgs
+    gristdl tree      # display all documents as a tree

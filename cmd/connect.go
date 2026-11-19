@@ -6,14 +6,14 @@ import (
 
 	"github.com/oschwand/gristdl/internal/grist"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var connectCmd = &cobra.Command{
-	Use:   "connect",
-	Short: "Test connection to a Grist server and list accessible orgs",
+	Use:          "connect",
+	Short:        "Test connection to a Grist server and list accessible orgs",
+	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := grist.New(viper.GetString("server"), viper.GetString("token"))
+		client, err := newGristClient()
 		if err != nil {
 			return err
 		}
