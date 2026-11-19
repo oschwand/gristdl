@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var connectCmd = &cobra.Command{
-	Use:          "connect",
+var loginCmd = &cobra.Command{
+	Use:          "login",
 	Short:        "Test connection to a Grist server and list accessible orgs",
 	SilenceUsage: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -46,5 +46,5 @@ var connectCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(connectCmd)
+	rootCmd.AddCommand(loginCmd)
 }

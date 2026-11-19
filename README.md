@@ -36,5 +36,5 @@ Use `--env-file PATH` (or `GRIST_ENV_FILE`) for a custom dotenv location,
 
 ## Commands
 
-    gristdl connect   # test auth against the server, list accessible orgs
+    gristdl login     # test auth against the server, list accessible orgs
     gristdl tree      # display all documents as a tree
