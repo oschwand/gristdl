@@ -67,3 +67,7 @@ This makes subsequent pulls cheap:
 Existing files are never overwritten: if a target file exists and was not
 placed there by a previous pull, the document is refused with an error.
 `--force` overwrites existing files and re-downloads up-to-date documents.
+
+## Licence
+
+MIT — see [LICENSE](LICENSE).
