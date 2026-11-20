@@ -9,9 +9,9 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Print version, commit and build date",
+	Short: "Print version and build information",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("gristdl " + version.Full())
+		fmt.Fprintln(cmd.OutOrStdout(), "gristdl version "+version.String())
 	},
 }
 

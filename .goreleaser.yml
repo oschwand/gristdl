@@ -8,9 +8,6 @@ builds:
       - windows
     ldflags:
       - -s -w
-      - -X github.com/oschwand/gristdl/internal/version.Version={{.Version}}
-      - -X github.com/oschwand/gristdl/internal/version.Commit={{.FullCommit}}
-      - -X github.com/oschwand/gristdl/internal/version.Date={{.Date}}
 archives:
   - formats: [tar.gz]
     format_overrides:

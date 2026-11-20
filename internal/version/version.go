@@ -5,38 +5,42 @@ import (
 	"runtime/debug"
 )
 
-var (
-	Version = "dev"
-	Commit  = "none"
-	Date    = "unknown"
-)
-
+// String renders the build information embedded by the Go toolchain:
+// the module version stamped by `go install`, otherwise the VCS revision
+// of a local `go build`. A binary without build metadata reports
+// "(unknown)".
 func String() string {
-	if Version != "dev" {
-		return Version
+	info, ok := debug.ReadBuildInfo()
+	if !ok || info.GoVersion == "" {
+		return "(unknown)"
 	}
-	if info, ok := debug.ReadBuildInfo(); ok {
-		settings := make(map[string]string, len(info.Settings))
-		for _, s := range info.Settings {
-			settings[s.Key] = s.Value
-		}
-		if rev := settings["vcs.revision"]; rev != "" {
-			v := rev
-			if len(v) > 7 {
-				v = v[:7]
-			}
-			if settings["vcs.modified"] == "true" {
-				v += "-dirty"
-			}
-			return "dev-" + v
-		}
-		if info.Main.Version != "" && info.Main.Version != "(devel)" {
-			return info.Main.Version
-		}
+	v := info.Main.Version
+	if v == "" || v == "(devel)" {
+		v = devel(info)
 	}
-	return Version
+	return fmt.Sprintf("%s (%s)", v, info.GoVersion)
 }
 
-func Full() string {
-	return fmt.Sprintf("%s (commit %s, built %s)", String(), Commit, Date)
+// devel describes a locally built binary from the VCS settings the
+// toolchain stamps in when building inside a repository. It falls back to
+// the plain "(devel)" of a build outside version control.
+func devel(info *debug.BuildInfo) string {
+	rev := buildSetting(info, "vcs.revision")
+	if rev == "" {
+		return "(devel)"
+	}
+	v := "devel+" + rev[:min(7, len(rev))]
+	if buildSetting(info, "vcs.modified") == "true" {
+		v += "-dirty"
+	}
+	return v
+}
+
+func buildSetting(info *debug.BuildInfo, key string) string {
+	for _, s := range info.Settings {
+		if s.Key == key {
+			return s.Value
+		}
+	}
+	return ""
 }

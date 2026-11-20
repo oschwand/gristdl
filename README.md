@@ -4,14 +4,16 @@ Download Grist documents via the Grist API.
 
 ## Build
 
-    make build        # injects version from git describe
+    make build        # or plain go build
     ./gristdl version
     ./gristdl --version
 
-Version comes from git tags via `-ldflags -X` (see `Makefile` and `.goreleaser.yml`).
-Plain `go build` falls back to the VCS metadata embedded by the Go toolchain
-(`dev-<shortsha>`), and `go install github.com/oschwand/gristdl@vX.Y.Z` reports
-the module version. Releases: tag `vX.Y.Z` then `goreleaser release`.
+Version information comes from the build metadata embedded by the Go
+toolchain (`debug.ReadBuildInfo`), with no external injection:
+`go install github.com/oschwand/gristdl@vX.Y.Z` reports the module
+version, a local `go build` reports `devel+<commit>[-dirty]`, and a
+binary built outside version control reports `(unknown)`. Releases: tag
+`vX.Y.Z` then `goreleaser release`.
 
 ## Configuration
 
