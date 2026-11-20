@@ -68,6 +68,14 @@ Existing files are never overwritten: if a target file exists and was not
 placed there by a previous pull, the document is refused with an error.
 `--force` overwrites existing files and re-downloads up-to-date documents.
 
+## AI Disclosure
+
+Most of the code, tests, and documentation in this repository were
+written with AI assistance (Crush, running the GLM model by Z.ai),
+under the direction and review of the author. Commits carry the
+corresponding machine-generated attribution lines. The author retains
+copyright and full responsibility for the content.
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE).
