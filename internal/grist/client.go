@@ -27,11 +27,13 @@ type Org struct {
 }
 
 type Doc struct {
-	ID       string  `json:"id"`
-	Name     string  `json:"name"`
-	URLID    *string `json:"urlId"`
-	IsPinned bool    `json:"isPinned"`
-	Access   string  `json:"access"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	URLID     *string `json:"urlId"`
+	IsPinned  bool    `json:"isPinned"`
+	Access    string  `json:"access"`
+	CreatedAt string  `json:"createdAt"`
+	UpdatedAt string  `json:"updatedAt"`
 }
 
 type Workspace struct {
@@ -121,4 +123,31 @@ func (c *Client) Workspaces(ctx context.Context, orgID int64) ([]Workspace, erro
 		return nil, err
 	}
 	return ws, nil
+}
+
+func (c *Client) DownloadDoc(ctx context.Context, docID string, w io.Writer) error {
+	path := fmt.Sprintf("/api/docs/%s/download", url.PathEscape(docID))
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.Server+path, nil)
+	if err != nil {
+		return fmt.Errorf("build request GET %s: %w", path, err)
+	}
+	req.Header.Set("Authorization", "Bearer "+c.Token)
+
+	resp, err := c.HTTP.Do(req)
+	if err != nil {
+		return fmt.Errorf("request GET %s: %w", path, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		body, readErr := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		if readErr != nil {
+			return fmt.Errorf("read error response of GET %s: %w", path, readErr)
+		}
+		return &APIError{Status: resp.StatusCode, Body: strings.TrimSpace(string(body))}
+	}
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		return fmt.Errorf("download %s: %w", path, err)
+	}
+	return nil
 }

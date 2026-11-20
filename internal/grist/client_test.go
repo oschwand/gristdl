@@ -80,6 +80,60 @@ func TestAPIError(t *testing.T) {
 	}
 }
 
+func TestDownloadDoc(t *testing.T) {
+	var gotAuth, gotPath string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotAuth = r.Header.Get("Authorization")
+		gotPath = r.URL.Path
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Write([]byte("grist-file-bytes"))
+	}))
+	defer srv.Close()
+
+	c, err := New(srv.URL, "tok")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var buf strings.Builder
+	if err := c.DownloadDoc(context.Background(), "abc123", &buf); err != nil {
+		t.Fatal(err)
+	}
+	if gotAuth != "Bearer tok" {
+		t.Errorf("auth header = %q", gotAuth)
+	}
+	if gotPath != "/api/docs/abc123/download" {
+		t.Errorf("path = %q", gotPath)
+	}
+	if buf.String() != "grist-file-bytes" {
+		t.Errorf("body = %q", buf.String())
+	}
+}
+
+func TestDownloadDocError(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"error":"document not found"}`))
+	}))
+	defer srv.Close()
+
+	c, err := New(srv.URL, "tok")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var buf strings.Builder
+	err = c.DownloadDoc(context.Background(), "nope", &buf)
+	apiErr, ok := err.(*APIError)
+	if !ok {
+		t.Fatalf("want *APIError, got %T: %v", err, err)
+	}
+	if apiErr.Status != 404 || !strings.Contains(apiErr.Error(), "document not found") {
+		t.Errorf("error = %v", apiErr)
+	}
+	if buf.String() != "" {
+		t.Errorf("unexpected partial body: %q", buf.String())
+	}
+}
+
 func TestWorkspaces(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/api/orgs/7/workspaces" {
