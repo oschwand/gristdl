@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 	"github.com/oschwand/gristdl/internal/grist"
@@ -12,10 +13,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var (
-	cfgFile string
-	envFile string
-)
+var envFile string
 
 var rootCmd = &cobra.Command{
 	Use:     "gristdl",
@@ -33,8 +31,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is .gristdl.yaml or $HOME/.gristdl.yaml)")
-	rootCmd.PersistentFlags().StringVar(&envFile, "env-file", ".env", "dotenv file to load (set to \"\" to skip; real environment variables take precedence)")
+	rootCmd.PersistentFlags().StringVar(&envFile, "env-file", defaultEnvFile(),
+		"dotenv config file to load (set to \"\" to skip; real environment variables take precedence)")
 	rootCmd.PersistentFlags().String("server", "https://docs.getgrist.com", "Grist API server (or GRIST_URL)")
 	rootCmd.PersistentFlags().String("token", "", "Grist API token (or GRIST_API_KEY)")
 	rootCmd.PersistentFlags().String("doc-id", "", "default document ID (or GRIST_DOC_ID)")
@@ -55,19 +53,14 @@ func init() {
 
 func initConfig() {
 	loadEnvFile(viper.GetString("env-file"))
+}
 
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		viper.AddConfigPath(".")
-		viper.AddConfigPath("$HOME")
-		viper.SetConfigType("yaml")
-		viper.SetConfigName(".gristdl")
+func defaultEnvFile() string {
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		return ""
 	}
-
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-	}
+	return filepath.Join(dir, "gristdl", "config.env")
 }
 
 func loadEnvFile(path string) {

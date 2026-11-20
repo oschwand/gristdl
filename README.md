@@ -15,24 +15,18 @@ the module version. Releases: tag `vX.Y.Z` then `goreleaser release`.
 
 ## Configuration
 
-Precedence (highest first): flags, environment variables, `.env` file,
-config file, defaults.
+Precedence (highest first): flags, environment variables, config file,
+defaults. The config file is a dotenv file loaded from the XDG config
+directory, usually `~/.config/gristdl/config.env`:
 
-    gristdl connect --server https://grist.example.com --token XXX
-    # environment / .env file (default path .env, loaded unless
-    # variables are already set):
     GRIST_URL=https://grist.example.com
     GRIST_API_KEY=XXX
     GRIST_DOC_ID=tuSGBSshXrZgdeyxNfojAP
     GRIST_TEAM_ID=docs
-    # or .gristdl.yaml / $HOME/.gristdl.yaml:
-    server: https://grist.example.com
-    token: XXX
-    doc-id: tuSGBSshXrZgdeyxNfojAP
-    team-id: docs
 
-Use `--env-file PATH` (or `GRIST_ENV_FILE`) for a custom dotenv location,
-`--env-file ""` to disable, and `--config PATH` for a custom config file.
+Real environment variables always take precedence over the config file.
+Use `--env-file PATH` (or `GRIST_ENV_FILE`) for a custom location and
+`--env-file ""` to disable loading entirely.
 
 ## Commands
 
